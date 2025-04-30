@@ -32,26 +32,55 @@ let trips: Trip[] = [
 ];
 
 router.get("/", async (req, res) => {
-  const { data, error } = await supabase.from("trips").select("*");
-  if (data !== null) {
-    res.json(data);
+  const { search } = req.query;
+  const query = supabase
+    .from("trips")
+    .select("*")
+    .ilike("title", `%${search}%`);
+  if (search && typeof search === "string") {
+    query.ilike("title", `%${search}%`);
   }
+  const { data, error } = await query;
   if (error) {
     res.status(500).json({ error: "Error fetching trips from database" });
+    return;
   }
-  res.json(trips);
+  res.json(data);
 });
+
 router.post("/", async (req, res) => {
-  const { title, description, startDate, endDate } = req.body;
+  const { title, description, startDate, endDate, userId } = req.body;
+  console.log("Received data:", req.body);
   const { data, error } = await supabase
     .from("trips")
-    .insert([{ title, description, startDate, endDate }])
+    .insert([
+      {
+        name: title,
+        description,
+        start_date: startDate,
+        end_date: endDate,
+        user_id: userId,
+      },
+    ])
     .select();
+  console.log("Data after insert:", data);
   if (error) {
     res.status(500).json({ error: "Error inserting trip into database" });
+    return;
   }
   if (data) {
     res.status(201).json(data[0]);
+    return;
   }
 });
+
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { error } = await supabase.from("trips").delete().eq("id", id);
+  if (error) {
+    res.status(500).json({ error: "Error deleting trip from database" });
+    return;
+  }
+});
+
 export default router;

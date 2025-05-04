@@ -47,24 +47,32 @@ router.get("/", async (req, res) => {
   }
   res.json(data);
 });
+router.get("/test-supabase", async (req, res) => {
+  const { data, error } = await supabase.from("trips").select("*").limit(1);
+
+  if (error) {
+    console.error("Supabase test error:", error);
+    res.status(500).json({ error: "Supabase connection failed" });
+  }
+
+  res.json({ testSuccess: true, data });
+});
 
 router.post("/", async (req, res) => {
   const { title, description, startDate, endDate, userId } = req.body;
   console.log("Received data:", req.body);
   const { data, error } = await supabase
     .from("trips")
-    .insert([
-      {
-        name: title,
-        description,
-        start_date: startDate,
-        end_date: endDate,
-        user_id: userId,
-      },
-    ])
-    .select();
+    .insert({
+      name: title,
+      description,
+      start_date: startDate,
+      end_date: endDate,
+    })
+    .select("*");
   console.log("Data after insert:", data);
   if (error) {
+    console.error("Error inserting trip:", error);
     res.status(500).json({ error: "Error inserting trip into database" });
     return;
   }

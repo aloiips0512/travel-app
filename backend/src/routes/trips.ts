@@ -33,15 +33,14 @@ let trips: Trip[] = [
 
 router.get("/", async (req, res) => {
   const { search } = req.query;
-  const query = supabase
-    .from("trips")
-    .select("*")
-    .ilike("title", `%${search}%`);
+  console.log("Search query:", search);
+  const query = supabase.from("trips").select("*");
   if (search && typeof search === "string") {
-    query.ilike("title", `%${search}%`);
+    query.ilike("name", `%${search}%`);
   }
   const { data, error } = await query;
   if (error) {
+    console.error("Error fetching trips:", error);
     res.status(500).json({ error: "Error fetching trips from database" });
     return;
   }
@@ -68,9 +67,9 @@ router.post("/", async (req, res) => {
       description,
       start_date: startDate,
       end_date: endDate,
+      user_id: userId,
     })
     .select("*");
-  console.log("Data after insert:", data);
   if (error) {
     console.error("Error inserting trip:", error);
     res.status(500).json({ error: "Error inserting trip into database" });

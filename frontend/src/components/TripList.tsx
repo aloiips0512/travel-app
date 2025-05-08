@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useEffect } from "react";
 import AddTripForm from "./AddTripForm";
 import { User } from "@supabase/supabase-js";
+import { Button, Table } from "@chakra-ui/react";
 
 type Trip = {
   id: number;
-  title: string;
+  name: string;
   description: string;
   startDate: string;
   endDate: string;
@@ -22,30 +23,47 @@ export function TripList({ user }: TripListProps) {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
+    console.log("Fetched trips:", data);
     setTrips(data);
   };
   useEffect(() => {
     fetchTrips();
   }, []);
-
+  const hadleAddingTrip = () => {
+    setIsAdding(false);
+    fetchTrips();
+  };
   return (
     <div>
-      <h2>Trip List</h2>
-      {isAdding ? (
-        <AddTripForm userId={user.id} />
-      ) : (
-        <button onClick={() => setIsAdding(true)}>add trip</button>
-      )}
-      <ul>
-        {trips.map((trip) => (
-          <li key={trip.id}>
-            <h3>{trip.title}</h3>
-            <p>{trip.description}</p>
-            <p>Start Date: {trip.startDate}</p>
-            <p>End Date: {trip.endDate}</p>
-          </li>
-        ))}
-      </ul>
+      <Table.Root>
+        <Table.Header>
+          <Table.Row>
+            <Table.ColumnHeader>Name</Table.ColumnHeader>
+            <Table.ColumnHeader>Description</Table.ColumnHeader>
+            <Table.ColumnHeader>Start Date</Table.ColumnHeader>
+            <Table.ColumnHeader>End Date</Table.ColumnHeader>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {trips.map((item) => (
+            <Table.Row key={item.id}>
+              <Table.Cell>{item.name}</Table.Cell>
+              <Table.Cell>{item.description}</Table.Cell>
+              <Table.Cell>{item.startDate}</Table.Cell>
+              <Table.Cell textAlign="end">{item.endDate}</Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table.Root>
+
+      <Button
+        mt={4}
+        colorScheme="teal"
+        onClick={() => setIsAdding((prev) => !prev)}
+      >
+        {isAdding ? "Cancel" : "Add Trip"}
+      </Button>
+      {isAdding && <AddTripForm userId={user.id} onSuccess={hadleAddingTrip} />}
     </div>
   );
 }

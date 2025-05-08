@@ -1,9 +1,12 @@
 import { Button, Heading, Input, VStack } from "@chakra-ui/react";
 import React from "react";
+
 type AddTripFormProps = {
   userId: string;
+  onSuccess?: () => void;
 };
-export default function AddTripForm({ userId }: AddTripFormProps) {
+
+export default function AddTripForm({ userId, onSuccess }: AddTripFormProps) {
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [startDate, setStartDate] = React.useState("");
@@ -33,6 +36,9 @@ export default function AddTripForm({ userId }: AddTripFormProps) {
             setTitle("");
             setStartDate("");
             setEndDate("");
+            if (onSuccess) {
+              onSuccess();
+            }
           });
         console.log({ title, description, startDate, endDate });
       }}

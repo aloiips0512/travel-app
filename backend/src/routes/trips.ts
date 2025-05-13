@@ -33,7 +33,6 @@ let trips: Trip[] = [
 
 router.get("/", async (req, res) => {
   const { search } = req.query;
-  console.log("Search query:", search);
   const query = supabase.from("trips").select("*");
   if (search && typeof search === "string") {
     query.ilike("name", `%${search}%`);
@@ -59,7 +58,6 @@ router.get("/test-supabase", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const { title, description, startDate, endDate, userId } = req.body;
-  console.log("Received data:", req.body);
   const { data, error } = await supabase
     .from("trips")
     .insert({
@@ -80,14 +78,43 @@ router.post("/", async (req, res) => {
     return;
   }
 });
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, description, startDate, endDate } = req.body;
+  const { data, error } = await supabase
+    .from("trips")
+    .update({
+      name: title,
+      description,
+      start_date: startDate,
+      end_date: endDate,
+    })
+    .eq("id", id)
+    .select("*");
+  if (error) {
+    console.error("Error updating trip:", error);
+    res.status(500).json({ error: "Error updating trip in database" });
+    return;
+  }
+  res.json(data[0]);
+});
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
-  const { error } = await supabase.from("trips").delete().eq("id", id);
+  const { data, error } = await supabase
+    .from("trips")
+    .delete()
+    .eq("id", id)
+    .select();
   if (error) {
     res.status(500).json({ error: "Error deleting trip from database" });
     return;
   }
+  if (!data || data.length === 0) {
+    res.status(404).json({ error: "Trip not found" });
+    return;
+  }
+  res.status(204).send();
 });
 
 export default router;

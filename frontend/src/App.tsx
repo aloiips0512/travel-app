@@ -2,30 +2,35 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { supabase } from "./supabaseClient";
 import { User } from "@supabase/supabase-js";
-import { TripList } from "./components/TripList";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Homepage from "./pages/Homepage";
+import LoginPage from "./pages/LoginPage";
+import { Spinner } from "@chakra-ui/react";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [initializing, setInitializing] = useState(true);
 
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-    });
-    if (error) console.error("Error logging in:", error.message);
-  };
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
+      setInitializing(false);
     });
   }, []);
+  if (initializing) {
+    return <Spinner />;
+  }
+  if (!user) {
+    return <LoginPage />;
+  }
 
-  return user ? (
-    <>
-      <p>Welcome, {user.email}</p>
-      <TripList user={user} />
-    </>
-  ) : (
-    <button onClick={handleLogin}>Login with Google</button>
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

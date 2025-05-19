@@ -5,7 +5,7 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "jsx": "react-jsx",
-
+    "types": ["vite/client", "vite-plugin-svgr/client"],
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -19,5 +19,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts", "vite-env.d.ts"]
 }

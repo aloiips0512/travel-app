@@ -6,6 +6,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Homepage from "./pages/Homepage";
 import LoginPage from "./pages/LoginPage";
 import { Spinner } from "@chakra-ui/react";
+import { Layout } from "./components/Layout";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -27,8 +28,21 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Homepage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* public route */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* all other routes go inside the Layout */}
+        <Route
+          path="/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Homepage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Layout>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

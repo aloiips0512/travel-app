@@ -1,5 +1,4 @@
 import { Heading, Button, VStack, HStack, Box } from "@chakra-ui/react";
-import AppLayout from "../components/AppLayout";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { User } from "@supabase/supabase-js";
@@ -15,7 +14,7 @@ export default function Homepage() {
     });
   }, []);
   return (
-    <AppLayout>
+    <>
       <Heading>Welcome to Travel App!</Heading>
       <VStack align="center" mt={10} w="full">
         <HStack>
@@ -36,6 +35,6 @@ export default function Homepage() {
           </Box>
         )}
       </VStack>
-    </AppLayout>
+    </>
   );
 }

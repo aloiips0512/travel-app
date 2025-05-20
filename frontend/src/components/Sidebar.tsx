@@ -4,6 +4,7 @@ import {
   Stack,
   type StackProps,
   StackSeparator,
+  Image,
 } from "@chakra-ui/react";
 import {
   LuBookmark,
@@ -15,6 +16,7 @@ import {
 } from "react-icons/lu";
 import { Button, type ButtonProps } from "@chakra-ui/react";
 import { UserProfile } from "./UserSidebarProfile";
+import logoSvg from "../assets/logo.svg";
 
 export const Sidebar = (props: StackProps) => {
   return (
@@ -32,8 +34,9 @@ export const Sidebar = (props: StackProps) => {
     >
       <Stack gap="6">
         <Stack direction={"row"} alignItems="center" h={12}>
+          <Image src={logoSvg} boxSize="30px" borderRadius="full" />
           <Heading size="xl" fontWeight={"bold"}>
-            My Music Club
+            Travel app
           </Heading>
         </Stack>
 

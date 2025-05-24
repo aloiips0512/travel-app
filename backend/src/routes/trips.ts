@@ -8,6 +8,7 @@ type Trip = {
   description: string;
   startDate: string;
   endDate: string;
+  shared_with?: string[];
 };
 
 let trips: Trip[] = [
@@ -80,7 +81,7 @@ router.post("/", async (req, res) => {
 });
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const { title, description, startDate, endDate } = req.body;
+  const { title, description, startDate, endDate, shared_with } = req.body;
   const { data, error } = await supabase
     .from("trips")
     .update({
@@ -88,6 +89,7 @@ router.put("/:id", async (req, res) => {
       description,
       start_date: startDate,
       end_date: endDate,
+      shared_with: shared_with,
     })
     .eq("id", id)
     .select("*");

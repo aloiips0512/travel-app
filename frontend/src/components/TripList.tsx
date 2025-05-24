@@ -21,6 +21,7 @@ type Trip = {
   description: string;
   start_date: string;
   end_date: string;
+  shared_with?: string[];
 };
 
 export function TripList() {
@@ -30,6 +31,8 @@ export function TripList() {
   const [isOpenShareModal, setIsOpenShareModal] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [emailToShare, setEmailToShare] = useState("");
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [emailToUnshare, setEmailToUnshare] = useState<string | null>(null);
 
   const openShareModal = (trip: Trip) => {
     setIsOpenShareModal(true);
@@ -67,7 +70,40 @@ export function TripList() {
   // };
   const handleShare = async (trip: Trip, email: string) => {
     console.log("Sharing trip:", trip, "with email:", email);
-    //todo:
+    if (!email.trim()) {
+      console.error("Email is empty");
+      return;
+    }
+    const currentEmails = trip.shared_with || [];
+    if (currentEmails.includes(email)) {
+      console.error("Trip already shared with this email");
+      return;
+    }
+    const updatedEmails = [...currentEmails, email];
+    const response = await fetch(`http://localhost:5050/trips/${trip.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ shared_with: updatedEmails }),
+    });
+    if (!response.ok) {
+      console.error("Failed to share trip");
+      return;
+    }
+    fetchTrips();
+  };
+  const handleUnshare = async (trip: Trip, email: string) => {
+    const currentEmails = trip.shared_with || [];
+    const updatedEmails = currentEmails.filter((e) => e !== email);
+    const response = await fetch(`http://localhost:5050/trips/${trip.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ shared_with: updatedEmails }),
+    });
+    if (!response.ok) {
+      console.error("Failed to unshare trip");
+      return;
+    }
+    fetchTrips();
   };
   return (
     <>
@@ -228,7 +264,10 @@ export function TripList() {
             </Table.Body>
           </Table.Root>
         </Box>
-        <Dialog.Root open={isOpenShareModal}>
+        <Dialog.Root
+          open={isOpenShareModal}
+          onOpenChange={(details) => setIsOpenShareModal(details.open)}
+        >
           <Portal>
             <Dialog.Backdrop />
             <Dialog.Positioner>
@@ -243,21 +282,49 @@ export function TripList() {
                     value={emailToShare}
                     onChange={(e) => setEmailToShare(e.target.value)}
                     mt={2}
+                    color="black"
                   />
+                  {(selectedTrip?.shared_with ?? []).length > 0 && (
+                    <Box mb={3}>
+                      <Heading size="sm" mt={4} mb={2}>
+                        Already Shared With:
+                      </Heading>
+                      <Box pl={2}>
+                        {selectedTrip?.shared_with?.map((email) => (
+                          <Flex gap="4">
+                            <Box
+                              key={email}
+                              mt={2}
+                              fontSize="md"
+                              color="gray.600"
+                            >
+                              * {email}
+                            </Box>
+                            <CloseButton
+                              size="2xs"
+                              variant="solid"
+                              colorScheme="red"
+                              onClick={() => {
+                                setEmailToUnshare(email);
+                                setIsAlertDialogOpen(true);
+                              }}
+                            />
+                          </Flex>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
                 </Dialog.Body>
 
                 <Dialog.Footer>
-                  <Dialog.ActionTrigger asChild>
-                    <Button
-                      onClick={() => {
-                        setEmailToShare("");
-                      }}
-                      colorScheme="blue"
-                    >
-                      Cancel
-                    </Button>
-                  </Dialog.ActionTrigger>
-
+                  <Button
+                    onClick={() => {
+                      setEmailToShare("");
+                    }}
+                    colorScheme="blue"
+                  >
+                    Cancel
+                  </Button>
                   <Button
                     colorScheme="blue"
                     onClick={() => {
@@ -274,9 +341,59 @@ export function TripList() {
                 <Dialog.CloseTrigger asChild>
                   <CloseButton
                     size="sm"
-                    colorPalette="yellow"
+                    variant="solid"
+                    colorPalette="red"
                     onClick={closeShareModal}
                   />
+                </Dialog.CloseTrigger>
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Portal>
+        </Dialog.Root>
+        <Dialog.Root
+          open={isAlertDialogOpen}
+          onOpenChange={(details) => {
+            setIsAlertDialogOpen(details.open);
+            if (!details.open) {
+              setEmailToUnshare(null);
+            }
+          }}
+          role="alertdialog"
+        >
+          <Portal>
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+              <Dialog.Content>
+                <Dialog.Header>
+                  <Dialog.Title>Unshare Email</Dialog.Title>
+                </Dialog.Header>
+                <Dialog.Body>
+                  <p style={{ color: "black" }}>
+                    Are you sure you want to unshare this trip with{" "}
+                    <strong>{emailToUnshare}</strong> ?
+                  </p>
+                </Dialog.Body>
+                <Dialog.Footer>
+                  <Dialog.ActionTrigger asChild>
+                    <Button variant="solid">Cancel</Button>
+                  </Dialog.ActionTrigger>
+                  <Button
+                    colorPalette="red"
+                    variant="solid"
+                    onClick={() => {
+                      if (selectedTrip && emailToUnshare) {
+                        handleUnshare(selectedTrip, emailToUnshare);
+                        setEmailToUnshare(null);
+                        setSelectedTrip(null);
+                        setIsAlertDialogOpen(false);
+                      }
+                    }}
+                  >
+                    Unshare
+                  </Button>
+                </Dialog.Footer>
+                <Dialog.CloseTrigger asChild>
+                  <CloseButton size="sm" />
                 </Dialog.CloseTrigger>
               </Dialog.Content>
             </Dialog.Positioner>

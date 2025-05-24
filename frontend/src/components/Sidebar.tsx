@@ -34,7 +34,7 @@ export const Sidebar = (props: StackProps) => {
     >
       <Stack gap="6">
         <Stack direction={"row"} alignItems="center" h={12}>
-          <Image src={logoSvg} boxSize="30px" borderRadius="full" />
+          {/* <Image src={logoSvg} boxSize="30px" borderRadius="full" />*/}
           <Heading size="xl" fontWeight={"bold"}>
             Travel app
           </Heading>

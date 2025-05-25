@@ -27,7 +27,7 @@ export default function Homepage() {
         </HStack>
         {view === "list" ? (
           <Box w="full">
-            <TripList />
+            <TripList user={user} />
           </Box>
         ) : (
           <Box w="full">

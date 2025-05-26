@@ -10,8 +10,10 @@ import {
   Heading,
   IconButton,
   Input,
+  Link,
   Portal,
   Table,
+  Text,
 } from "@chakra-ui/react";
 import { PencilIcon, Trash2Icon, Save, CircleX, Share2 } from "lucide-react";
 import { User } from "@supabase/supabase-js";
@@ -117,7 +119,7 @@ export function TripList({ user }: TripListProps) {
               p={4}
               overflowX="auto"
             >
-              <Table.Root size="sm">
+              <Table.Root size="sm" interactive>
                 <Table.Header bg="gray.50">
                   <Table.Row>
                     <Table.ColumnHeader>Name</Table.ColumnHeader>
@@ -145,7 +147,9 @@ export function TripList({ user }: TripListProps) {
                             }
                           />
                         ) : (
-                          item.name
+                          <Link href={`/trips/${item.id}`}>
+                            <Text colorPalette="gray">{item.name}</Text>
+                          </Link>
                         )}
                       </Table.Cell>
                       <Table.Cell color="black">

@@ -7,6 +7,7 @@ import Homepage from "./pages/Homepage";
 import LoginPage from "./pages/LoginPage";
 import { Spinner } from "@chakra-ui/react";
 import { Layout } from "./components/Layout";
+import TripDetailPage from "./pages/TripDetailPage";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -39,6 +40,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Homepage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="trips/:id" element={<TripDetailPage />} />
               </Routes>
             </Layout>
           }

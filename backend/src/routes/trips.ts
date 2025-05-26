@@ -118,5 +118,22 @@ router.delete("/:id", async (req, res) => {
   }
   res.status(204).send();
 });
-
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { data, error } = await supabase
+    .from("trips")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (error) {
+    console.error("Error fetching trip:", error);
+    res.status(500).json({ error: "Error fetching trip from database" });
+    return;
+  }
+  if (!data) {
+    res.status(404).json({ error: "Trip not found" });
+    return;
+  }
+  res.json(data);
+});
 export default router;

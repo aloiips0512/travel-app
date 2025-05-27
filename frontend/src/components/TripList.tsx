@@ -147,7 +147,7 @@ export function TripList({ user }: TripListProps) {
                             }
                           />
                         ) : (
-                          <Link href={`/trips/${item.id}`}>
+                          <Link href={`/trips/${item.id}`} color="black">
                             <Text colorPalette="gray">{item.name}</Text>
                           </Link>
                         )}

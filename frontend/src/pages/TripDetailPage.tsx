@@ -1,4 +1,4 @@
-import { Button, Center, Link, Spinner } from "@chakra-ui/react";
+import { Button, Center, Spinner } from "@chakra-ui/react";
 import { TripDetail } from "../components/TripDetail";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -38,11 +38,16 @@ export default function TripDetailPage() {
   }
   return (
     <>
-      <Link href="/">
-        <Button variant="ghost" mb={4}>
-          ← Back to Trips
-        </Button>
-      </Link>
+      <Button
+        variant="outline"
+        mb={4}
+        size="lg"
+        color="white"
+        colorScheme="teal"
+        asChild
+      >
+        <a href="/"> ← Back to Trips</a>
+      </Button>
       <TripDetail trip={trip} />;
     </>
   );

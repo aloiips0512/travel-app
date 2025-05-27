@@ -136,4 +136,17 @@ router.get("/:id", async (req, res) => {
   }
   res.json(data);
 });
+router.get("/:id/locations", async (req, res) => {
+  const { id } = req.params;
+  const { data, error } = await supabase
+    .from("locations")
+    .select("*")
+    .eq("trip_id", id);
+  if (error) {
+    console.error("Error fetching locations:", error);
+    res.status(500).json({ error: "Error fetching locations from database" });
+    return;
+  }
+  res.json(data);
+});
 export default router;

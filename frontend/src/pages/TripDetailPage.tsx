@@ -48,7 +48,7 @@ export default function TripDetailPage() {
       >
         <a href="/"> ← Back to Trips</a>
       </Button>
-      <TripDetail trip={trip} />;
+      <TripDetail trip={trip} />
     </>
   );
 }

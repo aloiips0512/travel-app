@@ -59,7 +59,6 @@ export function TripDetail({ trip }: TripDetailProps) {
         })),
       };
       setTypes(formattedTypes);
-      console.log("Location types fetched:", data);
     };
     fetchLocationTypes();
   }, []);

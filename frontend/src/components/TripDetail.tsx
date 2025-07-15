@@ -8,14 +8,17 @@ import {
   Heading,
   Input,
   Portal,
+  Select,
   Separator,
   Stack,
   Text,
+  createListCollection,
 } from "@chakra-ui/react";
 import { Trip } from "../models/Trip";
 import { useEffect, useState } from "react";
 import { Location } from "../models/Location";
 import { PencilIcon, Trash2Icon } from "lucide-react";
+import { MapPreview } from "./MapPreview";
 
 type TripDetailProps = {
   trip: Trip;
@@ -25,11 +28,14 @@ export function TripDetail({ trip }: TripDetailProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [locationToEdit, setLocationToEdit] = useState<Location | null>(null);
   const [isAddMode, setIsAddMode] = useState(false);
+  const [types, setTypes] = useState<{
+    items: { value: string; label: string }[];
+  }>({ items: [] });
 
   useEffect(() => {
     const fetchLocations = async () => {
       const response = await fetch(
-        `http://localhost:5050/trips/${trip.id}/locations`
+        `http://localhost:5050/locations/trip/${trip.id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch locations");
@@ -39,7 +45,27 @@ export function TripDetail({ trip }: TripDetailProps) {
     };
     fetchLocations();
   }, [trip.id]);
+  useEffect(() => {
+    const fetchLocationTypes = async () => {
+      const response = await fetch(`http://localhost:5050/locations/types`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch location types");
+      }
+      const data = await response.json();
+      const formattedTypes = {
+        items: data.map((type: { id: number; name: string }) => ({
+          value: type.id,
+          label: type.name,
+        })),
+      };
+      setTypes(formattedTypes);
+      console.log("Location types fetched:", data);
+    };
+    fetchLocationTypes();
+  }, []);
+
   const handleAddLocation = async (location: Location) => {
+    console.log("Adding location:", location);
     const response = await fetch(`http://localhost:5050/locations`, {
       method: "POST",
       headers: {
@@ -53,24 +79,21 @@ export function TripDetail({ trip }: TripDetailProps) {
     const data = await response.json();
     setLocations((prevLocations) => [...prevLocations, data]);
   };
-  const handleEditLocation = async (locationId: string) => {
-    const response = await fetch(
-      `http://localhost:5050/locations/${locationId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: "Updated Location" }), //todo:
-      }
-    );
+  const handleEditLocation = async (id: string, name: string) => {
+    const response = await fetch(`http://localhost:5050/locations/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: name }),
+    });
     if (!response.ok) {
       throw new Error("Failed to update location");
     }
     const updatedLocation = await response.json();
     setLocations((prevLocations) =>
       prevLocations.map((loc) =>
-        loc.id === locationId ? { ...loc, name: updatedLocation.name } : loc
+        loc.id === id ? { ...loc, name: updatedLocation.name } : loc
       )
     );
   };
@@ -170,7 +193,7 @@ export function TripDetail({ trip }: TripDetailProps) {
                     • {location.name}
                   </Text>
                   <Text fontSize="sm" color="white" lineClamp={1}>
-                    {location.type}
+                    {location.type_name}
                   </Text>
                   <Button
                     size="xs"
@@ -203,8 +226,9 @@ export function TripDetail({ trip }: TripDetailProps) {
               setLocationToEdit({
                 id: "",
                 name: "",
-                type: "",
                 trip_id: trip.id,
+                type_id: 0,
+                type_name: "",
                 longitude: 0,
                 latitude: 0,
               });
@@ -213,6 +237,16 @@ export function TripDetail({ trip }: TripDetailProps) {
             }}
           >
             + Add Location
+          </Button>
+          <Button
+            colorScheme="blue"
+            size="xs"
+            mb={3}
+            onClick={() => {
+              <MapPreview locations={locations} />;
+            }}
+          >
+            Map
           </Button>
         </Box>
       </Box>
@@ -250,17 +284,45 @@ export function TripDetail({ trip }: TripDetailProps) {
                     <Text fontWeight="semibold" color="black">
                       Type:
                     </Text>
-                    <Input
-                      type="text"
-                      value={locationToEdit.type}
-                      color="black"
-                      onChange={(e) =>
-                        setLocationToEdit({
-                          ...locationToEdit,
-                          type: e.target.value,
-                        })
-                      }
-                    />
+                    <Select.Root
+                      collection={createListCollection({
+                        items: [
+                          { value: "1", label: "Sight" },
+                          { value: "2", label: "Walk" },
+                        ],
+                      })}
+                      size="sm"
+                      width="320px"
+                    >
+                      <Select.HiddenSelect />
+                      <Select.Control>
+                        <Select.Trigger backgroundColor="transparent">
+                          <Select.ValueText
+                            placeholder="Select type"
+                            colorPalette="gray"
+                          />
+                        </Select.Trigger>
+                        <Select.IndicatorGroup colorPalette="gray">
+                          <Select.Indicator />
+                        </Select.IndicatorGroup>
+                      </Select.Control>
+                      <Portal>
+                        <Select.Positioner>
+                          <Select.Content colorPalette="black" bg="white">
+                            {types.items.map((type) => (
+                              <Select.Item
+                                item={type}
+                                key={type.value}
+                                colorPalette="black"
+                              >
+                                {type.label}
+                                <Select.ItemIndicator />
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select.Positioner>
+                      </Portal>
+                    </Select.Root>{" "}
                   </Stack>
                 ) : (
                   <Text color="black">No location selected for editing</Text>
@@ -275,7 +337,10 @@ export function TripDetail({ trip }: TripDetailProps) {
                     if (isAddMode) {
                       handleAddLocation(locationToEdit);
                     } else {
-                      handleEditLocation(locationToEdit.id);
+                      handleEditLocation(
+                        locationToEdit.id,
+                        locationToEdit.name
+                      );
                     }
                     setLocationToEdit(null);
                     setIsAddMode(false);

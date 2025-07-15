@@ -9,12 +9,14 @@ interface LayoutProps {
 export const Layout = (props: LayoutProps) => {
   const { children } = props;
   return (
-    <>
+    <Flex direction="column" minH="100vh">
       <Navbar hideFrom="md" />
-      <Flex flex="1">
+      <Flex flex="1" overflow="hidden">
         <Sidebar hideBelow="md" />
-        <Container p={4}>{children}</Container>
+        <Container padding={4} maxW="full" overflowY="auto">
+          {children}
+        </Container>
       </Flex>
-    </>
+    </Flex>
   );
 };

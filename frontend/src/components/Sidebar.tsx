@@ -18,56 +18,58 @@ import { UserProfile } from "./UserSidebarProfile";
 
 export const Sidebar = (props: StackProps) => {
   return (
-    <Stack
-      flex="1"
-      h="100vh"
-      p={{ base: "4", md: "6" }}
-      bg="rgba(0, 0, 0, 0.2)" // or 'rgba(0,0,0,0.2)' for dark
-      backdropFilter="blur(10px)"
-      borderRightWidth="1px"
-      borderColor="whiteAlpha.300" // subtle border
-      justifyContent="space-between"
-      maxW="xs"
-      {...props}
-    >
-      <Stack gap="6">
-        <Stack direction={"row"} alignItems="center" h={12}>
-          {/* <Image src={logoSvg} boxSize="30px" borderRadius="full" />*/}
-          <Heading size="xl" fontWeight={"bold"}>
-            Travel app
-          </Heading>
-        </Stack>
+    <Box as="aside" bg="gray.800" color="white">
+      <Stack
+        flex="1"
+        h="100vh"
+        p={{ base: "4", md: "6" }}
+        bg="rgba(0, 0, 0, 0.2)" // or 'rgba(0,0,0,0.2)' for dark
+        backdropFilter="blur(10px)"
+        borderRightWidth="1px"
+        borderColor="whiteAlpha.300" // subtle border
+        justifyContent="space-between"
+        maxW="xs"
+        {...props}
+      >
+        <Stack gap="6">
+          <Stack direction={"row"} alignItems="center" h={12}>
+            {/* <Image src={logoSvg} boxSize="30px" borderRadius="full" />*/}
+            <Heading size="xl" fontWeight={"bold"}>
+              Travel app
+            </Heading>
+          </Stack>
 
-        {/* <SearchField /> */}
-        <Stack gap="1">
-          <SidebarLink>
-            <LuLayoutDashboard /> Dashboard
-          </SidebarLink>
-          <SidebarLink aria-current="page">
-            <LuChartPie /> Analysis
-          </SidebarLink>
-          {/* <DocumentsLinks /> */}
-          <SidebarLink>
-            <LuClock /> History
-          </SidebarLink>
-          <SidebarLink>
-            <LuBookmark /> Favorites
-          </SidebarLink>
+          {/* <SearchField /> */}
+          <Stack gap="1">
+            <SidebarLink>
+              <LuLayoutDashboard /> Dashboard
+            </SidebarLink>
+            <SidebarLink aria-current="page">
+              <LuChartPie /> Analysis
+            </SidebarLink>
+            {/* <DocumentsLinks /> */}
+            <SidebarLink>
+              <LuClock /> History
+            </SidebarLink>
+            <SidebarLink>
+              <LuBookmark /> Favorites
+            </SidebarLink>
+          </Stack>
+        </Stack>
+        <Stack gap="4" separator={<StackSeparator />}>
+          <Box />
+          <Stack gap="1">
+            <SidebarLink>
+              <LuCircleHelp /> Help Center
+            </SidebarLink>
+            <SidebarLink>
+              <LuSettings /> Settings
+            </SidebarLink>
+          </Stack>
+          <UserProfile />
         </Stack>
       </Stack>
-      <Stack gap="4" separator={<StackSeparator />}>
-        <Box />
-        <Stack gap="1">
-          <SidebarLink>
-            <LuCircleHelp /> Help Center
-          </SidebarLink>
-          <SidebarLink>
-            <LuSettings /> Settings
-          </SidebarLink>
-        </Stack>
-        <UserProfile />
-      </Stack>
-    </Stack>
+    </Box>
   );
 };
 

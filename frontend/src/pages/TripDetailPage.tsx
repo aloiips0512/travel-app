@@ -4,7 +4,10 @@ import { useParams } from "react-router-dom";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Trip } from "../models/Trip";
 import mapboxgl from "mapbox-gl";
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+
 import "mapbox-gl/dist/mapbox-gl.css";
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 
 const INITIAL_CENTER: [number, number] = [-74.0242, 40.6941];
 const INITIAL_ZOOM = 10.12;
@@ -53,6 +56,12 @@ export default function TripDetailPage() {
       setCenter([mapCenter.lng, mapCenter.lat]);
       setZoom(mapZoom);
     });
+    mapRef.current.addControl(
+      new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl as unknown as typeof import("mapbox-gl"),
+      })
+    );
 
     return () => {
       mapRef.current?.remove();
@@ -98,6 +107,7 @@ export default function TripDetailPage() {
         <TripDetail trip={trip} />
       </Box>
       <Box position="relative" height="100%" width="100%">
+        <div> </div>
         <div id="map-container" ref={mapContainerRef}></div>
         <div className="sidebar">
           Longitude: {center[0].toFixed(4)} | Latitude:{center[1].toFixed(4)} |

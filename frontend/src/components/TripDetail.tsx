@@ -18,7 +18,7 @@ import { Trip } from "../models/Trip";
 import { useEffect, useState } from "react";
 import { Location } from "../models/Location";
 import { PencilIcon, Trash2Icon } from "lucide-react";
-import { MapPreview } from "./MapPreview";
+import { TripMap } from "./TripMap";
 
 type TripDetailProps = {
   trip: Trip;
@@ -32,17 +32,17 @@ export function TripDetail({ trip }: TripDetailProps) {
     items: { value: string; label: string }[];
   }>({ items: [] });
 
+  const fetchLocations = async () => {
+    const response = await fetch(
+      `http://localhost:5050/locations/trip/${trip.id}`
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch locations");
+    }
+    const data = await response.json();
+    setLocations(data);
+  };
   useEffect(() => {
-    const fetchLocations = async () => {
-      const response = await fetch(
-        `http://localhost:5050/locations/trip/${trip.id}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch locations");
-      }
-      const data = await response.json();
-      setLocations(data);
-    };
     fetchLocations();
   }, [trip.id]);
   useEffect(() => {
@@ -217,36 +217,19 @@ export function TripDetail({ trip }: TripDetailProps) {
           ) : (
             <Text color="white">No locations added yet</Text>
           )}
-          <Button
-            colorScheme="blue"
-            size="xs"
-            mb={3}
-            onClick={() => {
-              setLocationToEdit({
-                id: "",
-                name: "",
-                trip_id: trip.id,
-                type_id: 0,
-                type_name: "",
-                longitude: 0,
-                latitude: 0,
-              });
-              setIsEditOpen(true);
-              setIsAddMode(true);
-            }}
-          >
-            + Add Location
-          </Button>
-          <Button
-            colorScheme="blue"
-            size="xs"
-            mb={3}
-            onClick={() => {
-              <MapPreview locations={locations} />;
-            }}
-          >
-            Map
-          </Button>
+        </Box>
+        <Box
+          mt={6}
+          height="400px"
+          borderRadius="lg"
+          overflow="hidden"
+          position="relative"
+        >
+          <TripMap
+            tripId={trip.id}
+            onLocationAdded={fetchLocations}
+            locations={locations}
+          />
         </Box>
       </Box>
       <Dialog.Root
